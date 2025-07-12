@@ -1,20 +1,15 @@
 "use client";
 import React from "react";
-import { Button, Tooltip } from "@heroui/react";
+import { Button } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { useDispatch } from "react-redux";
 import { setCurrentSessionId } from "@/redux/slice/chatSlice";
 import ChatList from "./ChatList";
+import SearchButton from "./SearchButton";
 
-export default function Sidebar({
-  chatSessions,
-  currentChatId,
-  onSelectChat,
-  onDeleteChat,
-  onNewChat,
-}) {
+export default function Sidebar() {
   const [isCollapsed, setIsCollapsed] = React.useState(false);
   const [isExpanding, setIsExpanding] = React.useState(false);
   const dispatch = useDispatch();
@@ -156,30 +151,7 @@ export default function Sidebar({
           </AnimatePresence>
         </Button>
 
-        <Button
-          variant="outline"
-          size="icon"
-          onPress={() => {}}
-          className="flex items-center justify-start gap-2 p-2 py-2 rounded-lg"
-        >
-          <Icon icon="lucide:search" className="w-5 h-5" />
-          <AnimatePresence mode="wait">
-            {!isCollapsed && (
-              <motion.p
-                key="search-chats-text"
-                initial={isExpanding ? { opacity: 0 } : { opacity: 1 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 1 }}
-                transition={{
-                  duration: isExpanding ? 0.3 : 0,
-                  delay: isExpanding ? 0.4 : 0,
-                }}
-              >
-                Search chats
-              </motion.p>
-            )}
-          </AnimatePresence>
-        </Button>
+        <SearchButton isCollapsed={isCollapsed} isExpanding={isExpanding} />
       </div>
 
       {!isCollapsed && (

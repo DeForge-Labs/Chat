@@ -3,11 +3,15 @@
 import { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
-import { setChatSessions } from "@/redux/slice/chatSlice";
+import {
+  setChatSessions,
+  setCurrentSessionHistory,
+} from "@/redux/slice/chatSlice";
 
 export default function SessionProvider({ children }) {
   const workflowId = useSelector((state) => state.chat.workflowId);
   const dispatch = useDispatch();
+  const currentSessionId = useSelector((state) => state.chat.currentSessionId);
 
   useEffect(() => {
     if (workflowId) {
@@ -28,6 +32,21 @@ export default function SessionProvider({ children }) {
       }
     }
   }, [workflowId]);
+
+  useEffect(() => {
+    if (currentSessionId) {
+      const chatHistory = localStorage.getItem(
+        "chatHistory_" + currentSessionId
+      );
+      if (chatHistory) {
+        dispatch(setCurrentSessionHistory(JSON.parse(chatHistory)));
+      }
+    }
+
+    return () => {
+      dispatch(setCurrentSessionHistory(null));
+    };
+  }, [currentSessionId]);
 
   return <>{children}</>;
 }

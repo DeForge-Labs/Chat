@@ -19,7 +19,7 @@ export default function IntroWindow() {
   };
 
   return (
-    <>
+    <div className="flex flex-col justify-center items-center sm:w-[80%] md:w-[60%] w-[90%] gap-8 min-w-[300px] mx-4">
       <div className="flex flex-col items-end">
         <div className="flex items-center gap-2">
           <Image
@@ -36,7 +36,7 @@ export default function IntroWindow() {
         </div>
       </div>
 
-      <div className="w-full flex items-center gap-2">
+      <form className="w-full flex items-center gap-2" onSubmit={startNewChat}>
         <Input
           placeholder="Ask me anything..."
           className="border flex-1 border-black/50 rounded-full text-lg bg-black/5 px-4 py-2 w-full"
@@ -54,9 +54,7 @@ export default function IntroWindow() {
           variant="outline"
           size="icon"
           isDisabled={isChatLoading || !chatQuery}
-          onPress={() => {
-            startNewChat();
-          }}
+          type="submit"
           className="flex items-center justify-start bg-black text-background rounded-full gap-2 p-4"
         >
           {isChatLoading ? (
@@ -65,7 +63,7 @@ export default function IntroWindow() {
             <Icon icon="lucide:plus" className="w-5 h-5" />
           )}
         </Button>
-      </div>
+      </form>
 
       <div className="w-full flex items-center justify-center gap-2">
         <p className="text-black/60 text-xs text-center w-[350px]">
@@ -73,6 +71,6 @@ export default function IntroWindow() {
           Make sure to double check the response.
         </p>
       </div>
-    </>
+    </div>
   );
 }
