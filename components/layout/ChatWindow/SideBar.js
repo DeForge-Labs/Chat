@@ -4,7 +4,9 @@ import { Button, Tooltip } from "@heroui/react";
 import { Icon } from "@iconify/react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
-// import ChatList from "./chat-list";
+import { useDispatch } from "react-redux";
+import { setCurrentSessionId } from "@/redux/slice/chatSlice";
+import ChatList from "./ChatList";
 
 export default function Sidebar({
   chatSessions,
@@ -15,6 +17,7 @@ export default function Sidebar({
 }) {
   const [isCollapsed, setIsCollapsed] = React.useState(false);
   const [isExpanding, setIsExpanding] = React.useState(false);
+  const dispatch = useDispatch();
 
   const toggleSidebar = () => {
     if (isCollapsed) {
@@ -129,7 +132,9 @@ export default function Sidebar({
         <Button
           variant="outline"
           size="icon"
-          onPress={onNewChat}
+          onPress={() => {
+            dispatch(setCurrentSessionId(null));
+          }}
           className="flex items-center justify-start gap-2 p-2 py-2 rounded-lg"
         >
           <Icon icon="lucide:message-circle-plus" className="w-5 h-5" />
@@ -154,7 +159,7 @@ export default function Sidebar({
         <Button
           variant="outline"
           size="icon"
-          onPress={onNewChat}
+          onPress={() => {}}
           className="flex items-center justify-start gap-2 p-2 py-2 rounded-lg"
         >
           <Icon icon="lucide:search" className="w-5 h-5" />
@@ -180,6 +185,8 @@ export default function Sidebar({
       {!isCollapsed && (
         <div className="border border-t border-black/10 mx-6 my-4"></div>
       )}
+
+      {!isCollapsed && <ChatList />}
     </motion.div>
   );
 }
