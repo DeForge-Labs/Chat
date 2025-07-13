@@ -36,8 +36,8 @@ export default function WorkflowProvider({ children }) {
         return;
       }
 
-      if (status?.toLowerCase() === "test") {
-        if (apiCall.data?.status?.toLowerCase() !== "test") {
+      if (apiCall.data?.status?.toLowerCase() === "test") {
+        if (status?.toLowerCase() !== "test") {
           toast.error("Invalid workflow");
           return;
         }
