@@ -15,8 +15,8 @@ const lexendDeca = Lexend_Deca({
 });
 
 export const metadata = {
-  title: "Deforge.io",
-  description: "Build AI Agents Visually, No Code Required",
+  title: "Chat",
+  description: "Chat with AI Agents, Powered by Deforge",
 };
 
 export default function RootLayout({ children }) {
