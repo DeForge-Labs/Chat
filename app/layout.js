@@ -7,6 +7,7 @@ import UiProvider from "@/providers/UiProvider";
 import { Toaster } from "sonner";
 import ReduxProvider from "@/providers/ReduxProvider";
 import SessionProvider from "@/providers/SessionProvider";
+import WorkflowProvider from "@/providers/WorkflowProvider";
 
 const lexendDeca = Lexend_Deca({
   subsets: ["latin"],
@@ -39,7 +40,9 @@ export default function RootLayout({ children }) {
                 },
               }}
             />
-            <SessionProvider>{children}</SessionProvider>
+            <WorkflowProvider>
+              <SessionProvider>{children}</SessionProvider>
+            </WorkflowProvider>
           </UiProvider>
         </ReduxProvider>
       </body>

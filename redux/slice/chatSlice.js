@@ -10,7 +10,7 @@ const chatSlice = createSlice({
     chatQuery: "",
     isChatLoading: false,
     currentProcessingSessionId: null,
-    workflowId: "12345",
+    workflowId: null,
     chatSessions: [],
   },
 
