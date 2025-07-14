@@ -1,36 +1,35 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+<div align="center">
+  <img src="https://socialify.git.ci/DeForge-Labs/Chat/image?description=1&font=Raleway&logo=https%3A%2F%2Ffiles.catbox.moe%2Fgfj4f9.svg&name=1&owner=1&pattern=Transparent&theme=Dark" alt="chat" width="640" height="320" />
+</div>
 
-## Getting Started
+---
 
-First, run the development server:
+## UI for custom chat bots that _you_ create.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+---
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Create your own personal chatbots using Deforge and use this UI to chat away.
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+<img width="1280" height="806" alt="image" src="https://github.com/user-attachments/assets/dbee2b2a-1817-4254-a42a-54dfee1aac94" />
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+This simple workflow is enough to create your own chatbot.
 
-## Learn More
+## Features
+- ✅ Use any and all types of LLMs
+- ✅ Add custom knowledge bases
+- ✅ Use your own custom crafted system prompt for complete personalization.
 
-To learn more about Next.js, take a look at the following resources:
+## Upcoming features
+- Custom Branding
+- Dark Theme
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Screenshots
+<img width="1920" height="919" alt="image" src="https://github.com/user-attachments/assets/bc36fe27-0ed1-4cc3-9a81-2828f097e838" />
+<img width="1920" height="919" alt="image" src="https://github.com/user-attachments/assets/92fb78b6-5b03-4baf-9517-ee28987e623d" />
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## How to ? (For now)
+- Create workflow
+- Save workflow
+- Copy workfflow ID from url
+- Create your own chat UI url: `https://chat.deforge.io/?workflowId=${id}&status=test`
+- DONE ✅
