@@ -30,7 +30,7 @@ export default function useChat() {
       dispatch(setCurrentSessionId(sessionId));
 
       const apiCall = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/chatbot/message/0120932f-26fc-43f1-a879-3fc8bab53e76`,
+        `${process.env.NEXT_PUBLIC_API_URL}/chatbot/message/${workflowId}`,
         {
           Message: chatQuery,
           queryId: sessionId,
@@ -201,7 +201,7 @@ export default function useChat() {
       }
 
       const apiCall = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/chatbot/message/0120932f-26fc-43f1-a879-3fc8bab53e76`,
+        `${process.env.NEXT_PUBLIC_API_URL}/chatbot/message/${workflowId}`,
         {
           Message: chatQuery,
           queryId: currentSessionId,
