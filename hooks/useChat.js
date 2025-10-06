@@ -34,6 +34,9 @@ export default function useChat() {
         {
           Message: chatQuery,
           queryId: sessionId,
+        },
+        {
+          timeout: 300000, // 300 seconds timeout
         }
       );
 

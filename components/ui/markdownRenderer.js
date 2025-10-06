@@ -1,27 +1,48 @@
 "use client";
 
+import React from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { Prism as SyntaxHighlighter } from "react-syntax-highlighter";
 import { oneDark } from "react-syntax-highlighter/dist/esm/styles/prism";
 
 export default function MarkdownRenderer({ content }) {
+
+  const [copiedCode, setCopiedCode] = React.useState(null);
+  const handleCopy = (code) => {
+    navigator.clipboard.writeText(code)
+      .then(() => {
+        setCopiedCode(code);
+        setTimeout(() => setCopiedCode(null), 2000);
+      })
+      .catch((err) => console.error('Failed to copy code: ', err));
+  };
+
   return (
     <ReactMarkdown
       remarkPlugins={[remarkGfm]}
       components={{
         code({ node, inline, className, children, ...props }) {
           const match = /language-(\w+)/.exec(className || "");
+          const codeString = String(children).replace(/\n$/, "");
           return !inline && match ? (
-            <SyntaxHighlighter
-              style={oneDark}
-              language={match[1]}
-              PreTag="div"
-              className="rounded-md"
-              {...props}
-            >
-              {String(children).replace(/\n$/, "")}
-            </SyntaxHighlighter>
+            <div className="relative group">
+              <SyntaxHighlighter
+                style={oneDark}
+                language={match[1]}
+                PreTag="div"
+                className="rounded-md"
+                {...props}
+              >
+                {codeString}
+              </SyntaxHighlighter>
+              <button
+                onClick={() => handleCopy(codeString)}
+                className="absolute top-2 right-2 bg-gray-700 hover:bg-gray-600 text-white px-2 py-1 text-sm rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+              >
+                {copiedCode === codeString ? "Copied!" : "Copy"}
+              </button>
+            </div>
           ) : (
             <code className="bg-muted px-1 py-0.5 rounded text-sm" {...props}>
               {children}
