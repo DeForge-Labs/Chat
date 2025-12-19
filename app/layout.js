@@ -18,11 +18,8 @@ export const metadata = {
 
 const RootLayout = ({ children }) => {
   return (
-    <html lang="en">
-      <body
-        suppressHydrationWarning
-        className={`${lexendDeca.className} antialiased`}
-      >
+    <html lang="en" suppressHydrationWarning>
+      <body className={`${lexendDeca.className} antialiased`}>
         <ThemeProvider attribute="class">
           <ToasterProvider />
           {children}

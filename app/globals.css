@@ -132,6 +132,18 @@
   }
 }
 
+[data-streamdown="code-block"] {
+  @apply bg-foreground/5 border border-foreground/10 rounded-lg my-4 overflow-hidden;
+}
+
+[data-streamdown="code-block"] pre {
+  @apply p-4 overflow-x-auto text-sm font-mono text-foreground/90;
+}
+
+[data-streamdown="inline-code"] {
+  @apply bg-foreground/10 px-1.5 py-0.5 rounded text-sm font-mono text-foreground/80;
+}
+
 .hide-scroll::-webkit-scrollbar {
   display: none;
 }
