@@ -136,7 +136,7 @@ const IntroWindow = ({ workflowId, status }) => {
           width={400}
           height={400}
           src="/logo/logo-black.svg"
-          className="opacity-30 dark:invert"
+          className="opacity-10 dark:opacity-20 dark:invert"
         />
       </div>
 
@@ -152,7 +152,7 @@ const IntroWindow = ({ workflowId, status }) => {
           data flow before deployment.
         </p>
 
-        <div className="relative w-full max-w-150 min-w-75">
+        <div className="relative w-full max-w-150 min-w-75 z-40">
           <Textarea
             value={query}
             disabled={isLoading}
@@ -160,7 +160,7 @@ const IntroWindow = ({ workflowId, status }) => {
             style={{ resize: "none" }}
             placeholder={currentPlaceholder}
             onChange={(e) => setQuery(e.target.value)}
-            className="w-full border border-foreground/30 rounded-lg h-32 p-4 text-base resize-none shadow-sm focus-visible:ring-1 bg-background"
+            className="w-full border border-foreground/30 rounded-lg h-32 p-4 text-base resize-none shadow-sm focus-visible:ring-1 bg-background!"
           />
 
           <Button

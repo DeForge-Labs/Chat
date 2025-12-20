@@ -1,16 +1,63 @@
 "use client";
 
-import React, { memo } from "react";
+import React, { memo, useEffect, useState } from "react";
 import { Streamdown } from "streamdown";
+import { useTheme } from "next-themes";
 
 const MarkdownRenderer = ({ content, isAnimating = false }) => {
+  const { resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const currentShikiTheme =
+    mounted && resolvedTheme === "dark"
+      ? ["dracula", "dracula"]
+      : ["github-light", "github-light"];
+
   return (
-    <div className="w-full text-foreground/90 leading-relaxed wrap-break-word">
+    <div className="w-full text-foreground/90 leading-relaxed break-words relative">
+      <style jsx global>{`
+        /* Force newlines to be respected */
+        [data-streamdown="code-block"] pre,
+        [data-streamdown="code-block"] code {
+          white-space: pre !important;
+          overflow-x: auto !important;
+          font-family: monospace !important;
+        }
+
+        /* Container Styling */
+        [data-streamdown="code-block"] {
+          background-color: ${mounted && resolvedTheme === "dark"
+            ? "#1e1e1e"
+            : "#f6f8fa"} !important;
+          border: 1px solid
+            ${mounted && resolvedTheme === "dark" ? "#30363d" : "#d0d7de"} !important;
+          border-radius: 0.5rem;
+          margin: 1rem 0;
+          width: 100%;
+        }
+
+        /* Pad the inner code area */
+        [data-streamdown="code-block"] pre {
+          padding: 1rem !important;
+        }
+
+        /* Fix Inline Code (e.g. variable names) */
+        [data-streamdown="inline-code"] {
+          background-color: rgba(125, 125, 125, 0.1);
+          padding: 0.2rem 0.4rem;
+          border-radius: 0.25rem;
+          font-family: monospace;
+          font-size: 0.875rem;
+        }
+      `}</style>
+
       <Streamdown
-        controls={{
-          code: true,
-          table: true,
-        }}
+        shikiTheme={currentShikiTheme}
+        controls={{ code: true, table: true }}
         isAnimating={isAnimating}
         components={{
           h1: ({ children }) => (
@@ -55,6 +102,13 @@ const MarkdownRenderer = ({ content, isAnimating = false }) => {
             >
               {children}
             </a>
+          ),
+          img: ({ src, alt }) => (
+            <img
+              src={src || "/placeholder.svg"}
+              alt={alt}
+              className="rounded-lg my-4 w-full max-w-full"
+            />
           ),
           table: ({ children }) => (
             <div className="overflow-x-auto my-4 border border-foreground/10 rounded-lg">
