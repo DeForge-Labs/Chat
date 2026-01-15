@@ -1,121 +1,151 @@
 "use client";
-import { useDispatch } from "react-redux";
-import { useSelector } from "react-redux";
-import { Button, Input } from "@heroui/react";
-import { Icon } from "@iconify/react";
-import useChat from "@/hooks/useChat";
-import { setChatQuery } from "@/redux/slice/chatSlice";
-import MarkdownRenderer from "@/components/ui/markdownRenderer";
-import { useEffect, useRef } from "react";
 
-export default function ChatHistory() {
-  const chatQuery = useSelector((state) => state.chat.chatQuery);
-  const dispatch = useDispatch();
-  const isChatLoading = useSelector((state) => state.chat.isChatLoading);
-  const { addChat } = useChat();
-  const chatHistory = useSelector((state) => state.chat.currentSessionHistory);
-  const currentProcessingSessionId = useSelector(
-    (state) => state.chat.currentProcessingSessionId
-  );
-  const currentSessionId = useSelector((state) => state.chat.currentSessionId);
+import axios from "axios";
+import { toast } from "sonner";
+import { useEffect, useRef, useState } from "react";
 
-  // Ref for the scrollable container
-  const scrollContainerRef = useRef(null);
+import ChatInput from "./ChatInput";
+import MessageList from "./MessageList";
 
-  // Auto-scroll to bottom function with smooth scrolling
+export default function ChatHistory({ chatId, workflowId }) {
+  const [query, setQuery] = useState("");
+  const [history, setHistory] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isInitializing, setIsInitializing] = useState(true);
+
+  const scrollRef = useRef(null);
+
   const scrollToBottom = () => {
-    if (scrollContainerRef.current) {
-      scrollContainerRef.current.scrollTo({
-        top: scrollContainerRef.current.scrollHeight,
+    if (scrollRef.current) {
+      scrollRef.current.scrollTo({
+        top: scrollRef.current.scrollHeight,
         behavior: "smooth",
       });
     }
   };
 
-  // Auto-scroll when chat history changes or when loading state changes
   useEffect(() => {
     scrollToBottom();
-  }, [chatHistory, isChatLoading, currentProcessingSessionId]);
+  }, [history, isLoading]);
 
-  // Initial scroll to bottom when component mounts
   useEffect(() => {
-    scrollToBottom();
-  }, []);
+    const loadHistory = () => {
+      setIsInitializing(true);
+      const storedHistory = localStorage.getItem(`chatHistory_${chatId}`);
 
-  const handleChatQueryChange = (e) => {
-    dispatch(setChatQuery(e.target.value));
+      if (storedHistory) {
+        try {
+          setHistory(JSON.parse(storedHistory));
+        } catch (e) {
+          console.error("Failed to parse history", e);
+          setHistory([]);
+        }
+      } else {
+        setHistory([]);
+      }
+      setIsInitializing(false);
+    };
+
+    loadHistory();
+  }, [chatId]);
+
+  const handleSendMessage = async () => {
+    if (!query.trim() || isLoading) return;
+
+    const currentQuery = query;
+    setQuery("");
+    setIsLoading(true);
+
+    const optimisticHistory = [
+      ...history,
+      { role: "user", content: currentQuery },
+    ];
+
+    setHistory(optimisticHistory);
+
+    try {
+      const apiCall = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/chatbot/message/${workflowId}`,
+        {
+          Message: currentQuery,
+          queryId: chatId,
+        },
+        { timeout: 300000 }
+      );
+
+      if (!apiCall.data.success) {
+        toast.error(apiCall.data.message || "Failed to fetch response");
+        setIsLoading(false);
+
+        return;
+      }
+
+      const botResponse = apiCall.data.value.Message;
+
+      const newHistory = [
+        ...optimisticHistory,
+        {
+          role: "assistant",
+          content: botResponse || "No response generated.",
+        },
+      ];
+
+      setHistory(newHistory);
+
+      localStorage.setItem(`chatHistory_${chatId}`, JSON.stringify(newHistory));
+      updateSessionList(chatId, currentQuery, workflowId);
+    } catch (error) {
+      console.error(error);
+      toast.error("Something went wrong");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
+  const updateSessionList = (id, firstMessage, wfId) => {
+    const allSessionsStr = localStorage.getItem("chatSessions");
+
+    let allSessions = allSessionsStr ? JSON.parse(allSessionsStr) : [];
+
+    const exists = allSessions.find((s) => s.id === id);
+
+    if (!exists) {
+      const newSession = {
+        id,
+        workflowId: wfId,
+        name: firstMessage,
+        timestamp: new Date().toISOString(),
+      };
+      localStorage.setItem(
+        "chatSessions",
+        JSON.stringify([newSession, ...allSessions])
+      );
+    }
+  };
+
+  if (isInitializing) return null;
+
   return (
-    <div className="flex flex-col w-[90%] sm:w-[80%] md:w-[60%] h-full justify-center py-8 items-center min-w-[300px] mx-4">
-      <div className="flex-1 relative h-full w-full">
-        <div
-          ref={scrollContainerRef}
-          className="absolute top-0 left-0 w-full h-full flex flex-col gap-6 pb-8 overflow-y-auto hide-scroll"
-        >
-          {chatHistory &&
-            chatHistory.map((message, index) => {
-              if (message.role === "user") {
-                return (
-                  <div
-                    key={index}
-                    className="flex items-center justify-end gap-2"
-                  >
-                    <p className="bg-black/5 rounded-full px-6 text-sm text-black/70 p-4">
-                      {message.content}
-                    </p>
-                  </div>
-                );
-              } else {
-                return (
-                  <div key={index} className="gap-2">
-                    <MarkdownRenderer content={message.content} />
-                  </div>
-                );
-              }
-            })}
-          {currentProcessingSessionId &&
-            isChatLoading &&
-            currentProcessingSessionId === currentSessionId && (
-              <div className="bg-black/5 rounded-full px-6 text-sm text-black/70 p-4 w-fit">
-                <Icon icon="svg-spinners:3-dots-bounce" className="w-5 h-5" />
-              </div>
-            )}
+    <div className="flex flex-col h-full w-full relative">
+      <div
+        ref={scrollRef}
+        className="flex-1 overflow-y-auto w-full hide-scroll"
+      >
+        <div className="max-w-3xl mx-auto w-full p-4 pb-0 flex flex-col gap-6 min-h-0">
+          <MessageList history={history} isLoading={isLoading} />
         </div>
       </div>
-      <form
-        className="w-full flex items-center gap-2"
-        onSubmit={(e) => {
-          e.preventDefault();
-          addChat(chatQuery);
-        }}
-      >
-        <Input
-          placeholder="Ask me anything..."
-          className="border flex-1 border-black/50 rounded-full text-lg bg-black/5 px-4 py-2 w-full"
-          variant="outline"
-          isClearable
-          value={chatQuery}
-          onChange={handleChatQueryChange}
-          onClear={() => {
-            dispatch(setChatQuery(""));
-          }}
-          isDisabled={isChatLoading}
-        />
-        <Button
-          variant="outline"
-          size="icon"
-          isDisabled={isChatLoading || !chatQuery}
-          type="submit"
-          className="flex items-center justify-start bg-black text-background rounded-full gap-2 p-4"
-        >
-          {isChatLoading ? (
-            <Icon icon="lucide:loader" className="w-5 h-5 animate-spin" />
-          ) : (
-            <Icon icon="lucide:arrow-up" className="w-5 h-5" />
-          )}
-        </Button>
-      </form>
+
+      <div className="w-full p-4 pt-2">
+        <div className="max-w-3xl mx-auto w-full">
+          <ChatInput
+            query={query}
+            setQuery={setQuery}
+            isLoading={isLoading}
+            onSend={handleSendMessage}
+          />
+        </div>
+      </div>
     </div>
   );
 }

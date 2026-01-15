@@ -2,12 +2,9 @@ import { Lexend_Deca } from "next/font/google";
 
 import "./globals.css";
 
-import UiProvider from "@/providers/UiProvider";
+import { ThemeProvider } from "next-themes";
 
-import { Toaster } from "sonner";
-import ReduxProvider from "@/providers/ReduxProvider";
-import SessionProvider from "@/providers/SessionProvider";
-import WorkflowProvider from "@/providers/WorkflowProvider";
+import ToasterProvider from "@/providers/ToasterProvider";
 
 const lexendDeca = Lexend_Deca({
   subsets: ["latin"],
@@ -15,37 +12,21 @@ const lexendDeca = Lexend_Deca({
 });
 
 export const metadata = {
-  title: "Chat",
+  title: "Chat | Deforge",
   description: "Chat with AI Agents, Powered by Deforge",
 };
 
-export default function RootLayout({ children }) {
+const RootLayout = ({ children }) => {
   return (
-    <html lang="en">
-      <body
-        className={`${lexendDeca.className} antialiased`}
-        suppressHydrationWarning
-      >
-        <ReduxProvider>
-          <UiProvider>
-            <Toaster
-              position="bottom-center"
-              richColors
-              toastOptions={{
-                className: `flex items-center justify-center text-center border border-black ${lexendDeca.className}`,
-                style: {
-                  color: "black",
-                  backgroundColor: "var(--background)",
-                  borderColor: "black",
-                },
-              }}
-            />
-            <WorkflowProvider>
-              <SessionProvider>{children}</SessionProvider>
-            </WorkflowProvider>
-          </UiProvider>
-        </ReduxProvider>
+    <html lang="en" suppressHydrationWarning>
+      <body className={`${lexendDeca.className} antialiased`}>
+        <ThemeProvider attribute="class">
+          <ToasterProvider />
+          {children}
+        </ThemeProvider>
       </body>
     </html>
   );
-}
+};
+
+export default RootLayout;
