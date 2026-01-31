@@ -15,17 +15,17 @@ export default function ChatHistory({ chatId, workflowId }) {
 
   const scrollRef = useRef(null);
 
-  const scrollToBottom = () => {
+  const scrollToBottom = (behavior = "smooth") => {
     if (scrollRef.current) {
       scrollRef.current.scrollTo({
         top: scrollRef.current.scrollHeight,
-        behavior: "smooth",
+        behavior: behavior,
       });
     }
   };
 
   useEffect(() => {
-    scrollToBottom();
+    scrollToBottom("smooth");
   }, [history, isLoading]);
 
   useEffect(() => {
@@ -35,7 +35,8 @@ export default function ChatHistory({ chatId, workflowId }) {
 
       if (storedHistory) {
         try {
-          setHistory(JSON.parse(storedHistory));
+          const parsed = JSON.parse(storedHistory);
+          setHistory(parsed);
         } catch (e) {
           console.error("Failed to parse history", e);
           setHistory([]);
@@ -44,24 +45,38 @@ export default function ChatHistory({ chatId, workflowId }) {
         setHistory([]);
       }
       setIsInitializing(false);
+
+      setTimeout(() => scrollToBottom("smooth"), 1000);
     };
 
     loadHistory();
   }, [chatId]);
 
+  const saveToHistory = (newHistoryItems) => {
+    const updatedHistory = [...history, ...newHistoryItems];
+    setHistory(updatedHistory);
+    localStorage.setItem(
+      `chatHistory_${chatId}`,
+      JSON.stringify(updatedHistory),
+    );
+    return updatedHistory;
+  };
+
   const handleSendMessage = async () => {
     if (!query.trim() || isLoading) return;
 
     const currentQuery = query;
+    const timestamp = new Date().toISOString();
+
     setQuery("");
     setIsLoading(true);
+    const userMessage = {
+      role: "user",
+      content: currentQuery,
+      timestamp,
+    };
 
-    const optimisticHistory = [
-      ...history,
-      { role: "user", content: currentQuery },
-    ];
-
-    setHistory(optimisticHistory);
+    const optimisticHistory = saveToHistory([userMessage]);
 
     try {
       const apiCall = await axios.post(
@@ -70,32 +85,48 @@ export default function ChatHistory({ chatId, workflowId }) {
           Message: currentQuery,
           queryId: chatId,
         },
-        { timeout: 300000 }
+        { timeout: 300000 },
       );
 
       if (!apiCall.data.success) {
-        toast.error(apiCall.data.message || "Failed to fetch response");
-        setIsLoading(false);
-
+        const errorMessage = {
+          role: "assistant",
+          content: apiCall.data.message || "Failed to fetch response.",
+          timestamp: new Date().toISOString(),
+          isError: true,
+        };
+        saveToHistory([errorMessage]);
+        toast.error("Response failed");
         return;
       }
 
       const botResponse = apiCall.data.value.Message;
 
-      const newHistory = [
-        ...optimisticHistory,
-        {
-          role: "assistant",
-          content: botResponse || "No response generated.",
-        },
-      ];
+      const botMessage = {
+        role: "assistant",
+        content: botResponse || "No response generated.",
+        timestamp: new Date().toISOString(),
+      };
 
-      setHistory(newHistory);
+      const finalHistory = [...optimisticHistory, botMessage];
+      setHistory(finalHistory);
+      localStorage.setItem(
+        `chatHistory_${chatId}`,
+        JSON.stringify(finalHistory),
+      );
 
-      localStorage.setItem(`chatHistory_${chatId}`, JSON.stringify(newHistory));
       updateSessionList(chatId, currentQuery, workflowId);
     } catch (error) {
       console.error(error);
+
+      const crashMessage = {
+        role: "assistant",
+        content: "Chat failed to process due to a network or server error.",
+        timestamp: new Date().toISOString(),
+        isError: true,
+      };
+
+      saveToHistory([crashMessage]);
       toast.error("Something went wrong");
     } finally {
       setIsLoading(false);
@@ -104,9 +135,7 @@ export default function ChatHistory({ chatId, workflowId }) {
 
   const updateSessionList = (id, firstMessage, wfId) => {
     const allSessionsStr = localStorage.getItem("chatSessions");
-
     let allSessions = allSessionsStr ? JSON.parse(allSessionsStr) : [];
-
     const exists = allSessions.find((s) => s.id === id);
 
     if (!exists) {
@@ -118,7 +147,7 @@ export default function ChatHistory({ chatId, workflowId }) {
       };
       localStorage.setItem(
         "chatSessions",
-        JSON.stringify([newSession, ...allSessions])
+        JSON.stringify([newSession, ...allSessions]),
       );
     }
   };

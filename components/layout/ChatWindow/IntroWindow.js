@@ -6,59 +6,18 @@ import { toast } from "sonner";
 import { v4 as uuidv4 } from "uuid";
 import { ArrowUp } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
 
-const IntroWindow = ({ workflowId, status }) => {
+const IntroWindow = ({ workflowId, status, validation }) => {
+  console.log(validation);
   const router = useRouter();
 
   const [query, setQuery] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-
-  const [charIndex, setCharIndex] = useState(0);
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [placeholderIndex, setPlaceholderIndex] = useState(0);
-  const [currentPlaceholder, setCurrentPlaceholder] = useState("");
-
-  const placeholders = [
-    "Test how the agent responds to a customer question",
-    "Simulate an email summary workflow",
-    "Verify competitor price tracking logic",
-    "Check meeting scheduling behavior",
-  ];
-
-  useEffect(() => {
-    if (query) return;
-
-    const currentText = placeholders[placeholderIndex];
-
-    const timeout = setTimeout(
-      () => {
-        if (!isDeleting) {
-          if (charIndex < currentText.length) {
-            setCurrentPlaceholder(currentText.slice(0, charIndex + 1));
-            setCharIndex(charIndex + 1);
-          } else {
-            setTimeout(() => setIsDeleting(true), 2000);
-          }
-        } else {
-          if (charIndex > 0) {
-            setCurrentPlaceholder(currentText.slice(0, charIndex - 1));
-            setCharIndex(charIndex - 1);
-          } else {
-            setIsDeleting(false);
-            setPlaceholderIndex((placeholderIndex + 1) % placeholders.length);
-          }
-        }
-      },
-
-      isDeleting ? 30 : 50
-    );
-
-    return () => clearTimeout(timeout);
-  }, [charIndex, isDeleting, placeholderIndex, placeholders, query]);
 
   const handleStartChat = async () => {
     if (!query.trim() || isLoading) return;
@@ -74,7 +33,7 @@ const IntroWindow = ({ workflowId, status }) => {
           Message: currentQuery,
           queryId: sessionId,
         },
-        { timeout: 300000 }
+        { timeout: 300000 },
       );
 
       if (!apiCall.data.success) {
@@ -92,7 +51,7 @@ const IntroWindow = ({ workflowId, status }) => {
 
       localStorage.setItem(
         `chatHistory_${sessionId}`,
-        JSON.stringify(newHistory)
+        JSON.stringify(newHistory),
       );
 
       const allSessionsStr = localStorage.getItem("chatSessions");
@@ -107,11 +66,11 @@ const IntroWindow = ({ workflowId, status }) => {
 
       localStorage.setItem(
         "chatSessions",
-        JSON.stringify([newSession, ...allSessions])
+        JSON.stringify([newSession, ...allSessions]),
       );
 
       router.push(
-        `/${sessionId}?workflowId=${workflowId}&status=${status || ""}`
+        `/${sessionId}?workflowId=${workflowId}&status=${status || ""}`,
       );
     } catch (error) {
       console.error(error);
@@ -128,29 +87,51 @@ const IntroWindow = ({ workflowId, status }) => {
   };
 
   return (
-    <div className="flex-1 flex flex-col items-center pt-32 sm:pt-48 relative w-full">
-      <div className="absolute top-5 left-1/2 -translate-x-1/2 w-full h-full flex items-center justify-center pointer-events-none z-0">
+    <div className="flex-1 flex flex-col items-center justify-center relative w-full">
+      <div className="absolute -top-5 left-1/2 -translate-x-1/2 w-full h-full flex items-center justify-center pointer-events-none z-0">
         <Image
           priority
           alt="logo"
           width={400}
           height={400}
           src="/logo/logo-black.svg"
-          className="opacity-10 dark:opacity-20 dark:invert"
+          className="opacity-15 dark:opacity-15 dark:invert"
         />
       </div>
 
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full bg-linear-to-t from-background via-background to-background/5 pointer-events-none z-0"></div>
+      <div className="absolute -top-5 left-1/2 -translate-x-1/2 w-full h-full bg-linear-to-t from-background via-background to-background/5 pointer-events-none z-0"></div>
 
       <div className="z-10 flex flex-col gap-2 items-center w-full px-4">
-        <h1 className="text-3xl text-foreground/80 font-bold text-center">
-          Test Your Workflow
-        </h1>
+        <div
+          className={cn(
+            "flex flex-col items-end",
+            validation?.data?.introMessage ? "mb-5" : "mb-10",
+          )}
+        >
+          <div className="flex items-center gap-2">
+            <Image
+              src="/logo/logo-black.svg"
+              alt="Logo"
+              width={32}
+              height={32}
+              className="hover:scale-110 transition duration-200 dark:invert"
+            />
+            <p className="text-4xl font-bold">Chat</p>
+          </div>
+          <div className="text-xs">
+            by <span className="font-bold">Deforge</span>
+          </div>
+        </div>
 
-        <p className="text-center max-w-lg text-sm text-foreground/60 mb-6">
-          Run your agent in a test environment to verify logic, responses, and
-          data flow before deployment.
-        </p>
+        {validation?.data?.introMessage && (
+          <div className="w-full max-w-150 min-w-75 z-40 mb-2">
+            <div className="w-[80%] bg-foreground/5 p-3 rounded-xl rounded-bl-sm">
+              <p className="text-left text-foreground text-xs line-clamp-3">
+                {validation.data.introMessage}
+              </p>
+            </div>
+          </div>
+        )}
 
         <div className="relative w-full max-w-150 min-w-75 z-40">
           <Textarea
@@ -158,7 +139,7 @@ const IntroWindow = ({ workflowId, status }) => {
             disabled={isLoading}
             onKeyDown={handleKeyDown}
             style={{ resize: "none" }}
-            placeholder={currentPlaceholder}
+            placeholder={"Type your message here"}
             onChange={(e) => setQuery(e.target.value)}
             className="w-full border border-foreground/30 rounded-lg h-32 p-4 text-base resize-none shadow-sm focus-visible:ring-1 bg-background!"
           />
