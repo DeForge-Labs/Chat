@@ -125,8 +125,8 @@ const IntroWindow = ({ workflowId, status, validation }) => {
 
         {validation?.data?.introMessage && (
           <div className="w-full max-w-150 min-w-75 z-40 mb-2">
-            <div className="max-w-[80%] bg-foreground/5 p-3 rounded-xl rounded-bl-sm">
-              <p className="text-left text-foreground text-xs line-clamp-3">
+            <div className="max-w-[80%] w-fit bg-foreground/5 p-3 rounded-xl rounded-bl-sm">
+              <p className="text-left text-foreground w-fit text-xs line-clamp-3">
                 {validation.data.introMessage}
               </p>
             </div>
