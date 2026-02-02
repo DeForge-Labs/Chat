@@ -69,7 +69,7 @@ const MessageList = ({ history, isLoading }) => {
               </div>
 
               <div
-                className={`flex items-center gap-2 mt-1 px-1 ${
+                className={`flex items-center gap-2 mt-1 ${
                   isUser ? "flex-row-reverse" : "flex-row"
                 }`}
               >
