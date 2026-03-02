@@ -126,14 +126,30 @@ const IntroWindow = ({ workflowId, status, validation }) => {
         {validation?.data?.introMessage && (
           <div className="w-full max-w-150 min-w-75 z-40 mb-2">
             <div className="max-w-[80%] w-fit bg-foreground/5 p-3 rounded-xl rounded-bl-sm">
-              <p className="text-left text-foreground w-fit text-xs line-clamp-3">
-                {validation.data.introMessage}
-              </p>
+              <div className="group relative w-fit">
+                <p
+                  className={cn(
+                    "text-left text-foreground w-fit text-xs",
+                    validation?.data?.introMessage?.length > 200 &&
+                      "cursor-help",
+                  )}
+                >
+                  {validation.data.introMessage.length > 200
+                    ? validation.data.introMessage.slice(0, 200) + "..."
+                    : validation.data.introMessage}
+                </p>
+
+                {validation?.data?.introMessage?.length > 200 && (
+                  <span className="pointer-events-none absolute -left-4 -top-4 w-max scale-0 rounded-lg bg-background p-2 px-3 text-xs max-w-150 min-w-75 text-foreground/90 border border-foreground/15 transition-all group-hover:scale-100">
+                    {validation?.data?.introMessage}
+                  </span>
+                )}
+              </div>
             </div>
           </div>
         )}
 
-        <div className="relative w-full max-w-150 min-w-75 z-40">
+        <div className="relative w-full max-w-150 min-w-75 z-10">
           <Textarea
             value={query}
             disabled={isLoading}
