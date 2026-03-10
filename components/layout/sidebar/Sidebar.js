@@ -81,10 +81,14 @@ const FooterControls = ({ isCollapsed, workflowId, status }) => {
           shadow="shadow-none"
           bgColor="bg-transparent"
           className="invert dark:invert-0"
-          href={`/?workflowId=${workflowId}&status=${status}`}
+          href={`https://deforge.io`}
+          target="_blank"
         />
 
-        <div className="flex flex-col leading-none space-y-1">
+        <div
+          className="flex flex-col leading-none space-y-1 cursor-pointer"
+          onClick={() => window.open("https://deforge.io", "_blank")}
+        >
           <span className="text-sm font-bold text-foreground tracking-tight">
             Deforge
           </span>
@@ -142,7 +146,8 @@ const SidebarHeader = ({ isCollapsed, setIsCollapsed, workflowId, status }) => (
             padding="p-1.5"
             shadow="shadow-md"
             rounded="rounded-sm"
-            href={`/?workflowId=${workflowId}&status=${status}`}
+            href={`https://deforge.io`}
+            target="_blank"
           />
 
           <Separator
